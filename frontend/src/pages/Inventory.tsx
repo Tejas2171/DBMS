@@ -49,10 +49,11 @@ const InventoryTransaction: React.FC = () => {
         }
     };
 
-    const handleDeleteTransaction = async (id: number) => {
+    const handleDeleteTransaction = async (transaction_id: number) => {
         try {
-            await axios.delete(`${API_URL}/${id}`);
-            setTransactions(transactions.filter(transaction => transaction.transaction_id !== id));
+            console.log(transaction_id);
+            await axios.delete(`${API_URL}/${transaction_id}`);
+            setTransactions(transactions.filter(transaction => transaction.transaction_id !== transaction_id));
         } catch (error) {
             console.error('Error deleting transaction:', error);
         }

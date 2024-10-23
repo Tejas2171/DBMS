@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 import { CreditCard, DollarSign, Plus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
-// Simulated API call to fetch payments
+// API endpoint
+const API_URL = 'http://localhost:5000/api/payments';
+
+// Fetch payments from the API
 const fetchPayments = async () => {
-  return [
-    { payment_id: 1, order_id: 101, payment_method: 'Credit Card', payment_date: new Date('2023-05-01'), amount_paid: 99.99 },
-    { payment_id: 2, order_id: 102, payment_method: 'PayPal', payment_date: new Date('2023-05-02'), amount_paid: 149.99 },
-    { payment_id: 3, order_id: 103, payment_method: 'Bank Transfer', payment_date: new Date('2023-05-03'), amount_paid: 79.99 },
-    { payment_id: 4, order_id: 104, payment_method: 'Credit Card', payment_date: new Date('2023-05-04'), amount_paid: 199.99 },
-    { payment_id: 5, order_id: 105, payment_method: 'PayPal', payment_date: new Date('2023-05-05'), amount_paid: 59.99 },
-  ];
+  const response = await axios.get(API_URL);
+  return response.data;
+};
+
+// Add a new payment to the API
+const addPaymentToAPI = async (payment) => {
+  const response = await axios.post(API_URL, payment);
+  return response.data;
 };
 
 // Mapping of payment methods to colors
@@ -34,6 +38,7 @@ export default function Payments() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newPayment, setNewPayment] = useState({ orderId: '', method: '', amount: '' });
 
+  // Fetch payments on component mount
   useEffect(() => {
     const getPayments = async () => {
       const fetchedPayments = await fetchPayments();
@@ -43,6 +48,7 @@ export default function Payments() {
     getPayments();
   }, []);
 
+  // Filter payments based on search and filter criteria
   useEffect(() => {
     const filtered = payments.filter(payment =>
       (payment.payment_id.toString().includes(searchTerm) ||
@@ -52,17 +58,18 @@ export default function Payments() {
     setFilteredPayments(filtered);
   }, [searchTerm, methodFilter, payments]);
 
-  const handleAddPayment = () => {
+  // Add a new payment
+  const handleAddPayment = async () => {
     const paymentToAdd = {
-      payment_id: payments.length + 1, // Simulating an ID
       order_id: parseInt(newPayment.orderId),
       payment_method: newPayment.method,
-      payment_date: new Date(),
+      payment_date: new Date().toISOString(), // Convert to ISO string for API
       amount_paid: parseFloat(newPayment.amount),
     };
 
-    setPayments([...payments, paymentToAdd]);
-    setFilteredPayments([...payments, paymentToAdd]); // Update filtered payments
+    const addedPayment = await addPaymentToAPI(paymentToAdd);
+    setPayments([...payments, addedPayment]);
+    setFilteredPayments([...payments, addedPayment]); // Update filtered payments
     setNewPayment({ orderId: '', method: '', amount: '' }); // Reset form
     setIsAddDialogOpen(false); // Close dialog
   };
@@ -161,11 +168,11 @@ export default function Payments() {
                       {payment.payment_method}
                     </Badge>
                   </TableCell>
-                  <TableCell>{payment.payment_date.toLocaleDateString()}</TableCell>
+                  <TableCell>{new Date(payment.payment_date).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <div className="flex items-center">
                       <DollarSign className="mr-1 h-4 w-4 text-muted-foreground" />
-                      {payment.amount_paid.toFixed(2)}
+                      {payment.amount_paid}
                     </div>
                   </TableCell>
                 </TableRow>

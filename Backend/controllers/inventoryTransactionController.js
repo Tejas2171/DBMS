@@ -48,9 +48,10 @@ exports.updateInventoryTransaction = async (req, res) => {
 };
 
 exports.deleteInventoryTransaction = async (req, res) => {
+    console.log("Getting")
     try {
         const deleted = await InventoryTransaction.destroy({
-            where: { inventory_transaction_id: req.params.id },
+            where: { transaction_id: req.params.transaction_id },
         });
         if (deleted) {
             res.status(204).send();

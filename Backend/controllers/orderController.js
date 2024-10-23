@@ -26,8 +26,13 @@ exports.getAllOrders = async (req, res) => {
     console.log('Received GET request for all orders');
     try {
         const orders = await Order.findAll();
-        res.json(orders);
+        const formattedOrders = orders.map(order => ({
+            ...order.toJSON(), // Convert Sequelize instance to plain object
+            order_date: order.order_date.toISOString() // Format date
+        }));
+        res.json(formattedOrders);
     } catch (error) {
+        console.error('Error fetching orders:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 };
