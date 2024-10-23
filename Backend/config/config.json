@@ -1,0 +1,24 @@
+
+{
+  "development": {
+    "username": "root",
+    "password": "Tejas@2004",
+    "database": "Project",
+    "host": "localhost",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": "Tejas@2004",
+    "database": "Project",
+    "host": "localhost",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": "Tejas@2004",
+    "database": "Project",
+    "host": "localhost",
+    "dialect": "mysql"
+  }
+}
