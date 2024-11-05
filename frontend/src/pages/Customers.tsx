@@ -133,6 +133,7 @@ export default function Customers() {
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead>ID</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Phone</TableHead>
@@ -143,6 +144,7 @@ export default function Customers() {
         <TableBody>
           {filteredCustomers.map((customer) => (
             <TableRow key={customer.customer_id}>
+              <TableCell>{customer.customer_id}</TableCell>
               <TableCell className="font-medium">{customer.name}</TableCell>
               <TableCell>
                 <div className="flex items-center">

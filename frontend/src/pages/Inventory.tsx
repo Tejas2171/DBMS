@@ -7,7 +7,7 @@ import { Label } from '../components/ui/label';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/inventory-transactions';
+    const API_URL = 'http://localhost:5000/api/inventory-transactions';
 
 const InventoryTransaction: React.FC = () => {
     const [transactions, setTransactions] = useState([]);

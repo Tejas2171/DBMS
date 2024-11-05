@@ -17,6 +17,7 @@ export default function Products() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [newProduct, setNewProduct] = useState({ name: '', price: '', category: '', stock: '' });
   const [editingProduct, setEditingProduct] = useState(null);
+  const [categoryFilter, setCategoryFilter] = useState('all'); 
 
   const categoryMap = {
     1: "Electronics",
@@ -36,9 +37,11 @@ export default function Products() {
     fetchProducts();
   }, []);
 
-  const filteredProducts = products.filter(product =>
-    product?.name?.toLowerCase()?.includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = products.filter(product => {
+    const matchesCategory = categoryFilter === "all" || product.category_id.toString() === categoryFilter;
+    const matchesSearchTerm = product?.name?.toLowerCase()?.includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearchTerm;
+  });
 
   const handleAddProduct = async () => {
     const productToAdd = {
@@ -154,10 +157,25 @@ export default function Products() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-sm"
         />
+      
+
+        <Select value={categoryFilter} onValueChange={(value) => setCategoryFilter(value)}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Filter by Category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            <SelectItem value="1">Electronics</SelectItem>
+            <SelectItem value="2">Clothing</SelectItem>
+            <SelectItem value="3">Home & Garden</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
+
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead>ID</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Price</TableHead>
             <TableHead>Category</TableHead>
@@ -168,6 +186,7 @@ export default function Products() {
         <TableBody>
           {filteredProducts.map((product) => (
             <TableRow key={product.product_id}>
+              <TableCell>{product.product_id}</TableCell>
               <TableCell className="font-medium">{product.name}</TableCell>
               <TableCell>${product.price}</TableCell>
               <TableCell>{categoryMap[product.category_id]}</TableCell>

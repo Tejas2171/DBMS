@@ -105,6 +105,7 @@ export default function Suppliers() {
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead>ID</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Contact Info</TableHead>
             <TableHead>Actions</TableHead>
@@ -113,6 +114,7 @@ export default function Suppliers() {
         <TableBody>
           {filteredSuppliers.map((supplier) => (
             <TableRow key={supplier.supplier_id}>
+              <TableCell>{supplier.supplier_id}</TableCell>
               <TableCell className="font-medium">{supplier.name}</TableCell>
               <TableCell>{supplier.contact_info}</TableCell>
               <TableCell>

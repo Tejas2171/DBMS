@@ -60,6 +60,9 @@ const data = [
 export default function Home() {
   const [productCount, setProductCount] = useState(0);
   const [customerCount, setCustomerCount] = useState(0);
+  const [revenueCount, setRevenueCount] = useState(0);
+  const [shipmentCount, setShipmentCount] = useState(0);
+
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -82,9 +85,33 @@ export default function Home() {
         console.error('Error fetching products:', error);
       }
     };
+    const fetchRevenue = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/payments");
+        const products = response.data;
+        let temp = 0;
+        products.map((p: { amount_paid: string }) => {
+          temp += parseFloat(p.amount_paid)
+        })
+        setRevenueCount(temp.toFixed(2)); // Set the product count state
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+    const fetchShipments = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/shipments");
+        const products = response.data;
+        setShipmentCount(products.length); // Set the product count state
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
 
     fetchProducts();
     fetchCustomers();
+    fetchRevenue();
+    fetchShipments();
 
   }, []);
 
@@ -102,7 +129,7 @@ export default function Home() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$45,231.89</div>
+            <div className="text-2xl font-bold">${revenueCount}</div>
             <p className="text-xs text-muted-foreground">
               +20.1% from last month
             </p>
@@ -124,11 +151,11 @@ export default function Home() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Sales</CardTitle>
+            <CardTitle className="text-sm font-medium">Shipments</CardTitle>
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+12,234</div>
+            <div className="text-2xl font-bold">+{shipmentCount}</div>
             <p className="text-xs text-muted-foreground">
               +19% from last month
             </p>

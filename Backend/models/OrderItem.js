@@ -34,6 +34,9 @@ OrderItem.init({
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
     },
+    status: {
+        type: DataTypes.STRING,
+    }
 }, {
     sequelize,
     modelName: 'OrderItem',

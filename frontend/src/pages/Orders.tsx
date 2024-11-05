@@ -1,51 +1,55 @@
-import React, { useState, useEffect } from 'react'
-import { Button } from "../components/ui/button"
-import { Input } from "../components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
-import { Badge } from "../components/ui/badge"
-import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover"
-import { cn } from "../lib/utils"
-import { Calendar } from 'lucide-react'
+import React, { useState, useEffect } from 'react';
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { Badge } from "../components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
+import { cn } from "../lib/utils";
+import { Calendar } from 'lucide-react';
+import axios from 'axios';
 
-// This would typically come from your API
-const fetchOrders = async () => {
-  // Simulating API call
-  return [
-    { order_id: 1, customer_id: 101, order_date: new Date('2023-05-01'), total_amount: 99.99, status: 'Processing' },
-    { order_id: 2, customer_id: 102, order_date: new Date('2023-05-02'), total_amount: 149.99, status: 'Shipped' },
-    { order_id: 3, customer_id: 103, order_date: new Date('2023-05-03'), total_amount: 79.99, status: 'Delivered' },
-    { order_id: 4, customer_id: 104, order_date: new Date('2023-05-04'), total_amount: 199.99, status: 'Processing' },
-    { order_id: 5, customer_id: 105, order_date: new Date('2023-05-05'), total_amount: 59.99, status: 'Shipped' },
-  ]
-}
+const API_ENDPOINT = "http://localhost:5000/api/orders";
 
 const statusColors = {
   Processing: 'bg-yellow-500',
   Shipped: 'bg-blue-500',
   Delivered: 'bg-green-500',
-}
+};
 
 const formatDate = (date) => {
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 };
 
 export default function Orders() {
-  const [orders, setOrders] = useState([])
-  const [filteredOrders, setFilteredOrders] = useState([])
-  const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [dateFilter, setDateFilter] = useState(null)
+  const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [dateFilter, setDateFilter] = useState(null);
 
   useEffect(() => {
     const getOrders = async () => {
-      const fetchedOrders = await fetchOrders()
-      console.log('Fetched Orders:', fetchedOrders) // Log fetched orders
-      setOrders(fetchedOrders)
-      setFilteredOrders(fetchedOrders)
-    }
-    getOrders()
-  }, [])
+      try {
+        // console.log("Hi");
+        const response = await axios.get(API_ENDPOINT);
+        // console.log("Hi2");
+        if (Array.isArray(response.data)) {
+          setOrders(response.data);
+          setFilteredOrders(response.data);
+        } else {
+          console.error("Expected array but received:", response.data);
+          setOrders([]);
+          setFilteredOrders([]);
+        }
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        setOrders([]);
+        setFilteredOrders([]);
+      }
+    };
+    getOrders();
+  }, []);
 
   useEffect(() => {
     const filtered = orders.filter(order =>
@@ -53,10 +57,9 @@ export default function Orders() {
        order.customer_id.toString().includes(searchTerm)) &&
       (statusFilter === 'all' || order.status === statusFilter) &&
       (!dateFilter || formatDate(order.order_date) === formatDate(dateFilter))
-    )
-    console.log('Filtered Orders:', filtered) // Log filtered orders
-    setFilteredOrders(filtered)
-  }, [searchTerm, statusFilter, dateFilter, orders])
+    );
+    setFilteredOrders(filtered);
+  }, [searchTerm, statusFilter, dateFilter, orders]);
 
   return (
     <div className="space-y-4 p-8 pt-6">
@@ -119,7 +122,7 @@ export default function Orders() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredOrders.length === 0 ? (
+            {Array.isArray(filteredOrders) && filteredOrders.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center">No orders found.</TableCell>
               </TableRow>
@@ -128,8 +131,8 @@ export default function Orders() {
                 <TableRow key={order.order_id}>
                   <TableCell>{order.order_id}</TableCell>
                   <TableCell>{order.customer_id}</TableCell>
-                  <TableCell>{formatDate(order.order_date)}</TableCell>
-                  <TableCell>${order.total_amount.toFixed(2)}</TableCell>
+                  <TableCell>{new Date(order.order_date).toLocaleDateString()}</TableCell>
+                  <TableCell>${order.total_amount}</TableCell>
                   <TableCell>
                     <Badge className={`${statusColors[order.status]} text-white`}>
                       {order.status}
@@ -142,5 +145,5 @@ export default function Orders() {
         </Table>
       </div>
     </div>
-  )
+  );
 }

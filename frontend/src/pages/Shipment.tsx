@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -10,23 +11,24 @@ import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 import { Truck, Package, Search } from 'lucide-react'
 
-// This would typically come from your API
-const fetchShipments = async () => {
-  // Simulating API call
-  return [
-    { shipment_id: 1, order_id: 101, shipment_date: new Date('2023-05-01'), carrier: 'FedEx', tracking_number: 'FX123456789' },
-    { shipment_id: 2, order_id: 102, shipment_date: new Date('2023-05-02'), carrier: 'UPS', tracking_number: 'UP987654321' },
-    { shipment_id: 3, order_id: 103, shipment_date: new Date('2023-05-03'), carrier: 'DHL', tracking_number: 'DH456789123' },
-    { shipment_id: 4, order_id: 104, shipment_date: new Date('2023-05-04'), carrier: 'USPS', tracking_number: 'US789123456' },
-    { shipment_id: 5, order_id: 105, shipment_date: new Date('2023-05-05'), carrier: 'FedEx', tracking_number: 'FX987654321' },
-  ]
-}
+const API_URL = 'http://localhost:5000/api/shipments'
 
 const carrierColors = {
   'FedEx': 'bg-purple-500',
   'UPS': 'bg-yellow-500',
   'DHL': 'bg-red-500',
   'USPS': 'bg-blue-500',
+}
+
+const fetchShipments = async () => {
+  try {
+    const response = await axios.get(API_URL)  // Replace '/api/shipments' with your API endpoint
+    // console.log(response.data)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching shipments:', error)
+    return []
+  }
 }
 
 export default function Shipments() {
@@ -55,20 +57,25 @@ export default function Shipments() {
     setFilteredShipments(filtered)
   }, [searchTerm, carrierFilter, shipments])
 
-  const handleAddShipment = () => {
+  const handleAddShipment = async () => {
     const shipmentToAdd = {
       shipment_id: shipments.length + 1,
       ...newShipment,
       shipment_date: new Date(),
       order_id: parseInt(newShipment.order_id)
     }
-    setShipments([...shipments, shipmentToAdd])
-    setNewShipment({ order_id: '', carrier: '', tracking_number: '' })
-    setIsAddDialogOpen(false)
+
+    try {
+      const response = await axios.post('/api/shipments', shipmentToAdd) // Replace '/api/shipments' with your API endpoint
+      setShipments([...shipments, response.data])
+      setNewShipment({ order_id: '', carrier: '', tracking_number: '' })
+      setIsAddDialogOpen(false)
+    } catch (error) {
+      console.error('Error adding shipment:', error)
+    }
   }
 
   const carriers = [...new Set(shipments.map(shipment => shipment.carrier))]
-
   return (
     <div className="space-y-4 p-8 pt-6">
       <div className="flex justify-between items-center">
@@ -167,7 +174,7 @@ export default function Shipments() {
               <TableRow key={shipment.shipment_id}>
                 <TableCell>{shipment.shipment_id}</TableCell>
                 <TableCell>{shipment.order_id}</TableCell>
-                <TableCell>{shipment.shipment_date.toLocaleDateString()}</TableCell>
+                <TableCell>{shipment.shipment_date}</TableCell>
                 <TableCell>
                   <Badge className={`${carrierColors[shipment.carrier]} text-white`}>
                     {shipment.carrier}

@@ -1,39 +1,36 @@
+// models/Order.js
 const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../config/db.config'); // Adjust the path as necessary
-const Customer = require('./Customer'); // Import the Customer model
+const sequelize = require('../config/database'); // Adjust the path as necessary
+
 class Order extends Model {}
 
 Order.init({
     order_id: {
         type: DataTypes.INTEGER,
-        autoIncrement: true,
         primaryKey: true,
+        autoIncrement: true,
+        allowNull: false
     },
     customer_id: {
         type: DataTypes.INTEGER,
-        references: {
-            model: Customer,
-            key: 'customer_id',
-        },
-        onDelete: 'CASCADE',
+        allowNull: true
     },
     order_date: {
         type: DataTypes.DATE,
-        allowNull: false,
+        allowNull: false
     },
     total_amount: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false,
+        type: DataTypes.DOUBLE
     },
     status: {
-        type: DataTypes.ENUM('Shipped', 'Processing', 'Delivered'),
-        allowNull: false,
-    },
+        type: DataTypes.STRING(50),
+        allowNull: true
+    }
 }, {
     sequelize,
     modelName: 'Order',
-    tableName: 'Orders',
-    timestamps: false,
+    tableName: 'Orders', // Ensure the table name is correct
+    timestamps: false // Add this if you don't have createdAt/updatedAt fields
 });
 
 module.exports = Order;
