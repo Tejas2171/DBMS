@@ -1,2 +1,2 @@
 # DBMS
-E-commerce using sequalize
+E-commerce using Sequalize, React, Express, Typescript
